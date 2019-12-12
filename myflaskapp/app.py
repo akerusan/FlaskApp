@@ -1,13 +1,11 @@
 from flask import Flask, render_template, flash, redirect, url_for, session, request, logging
-from flask.logging import create_logger
-from flask_mysqldb import MySQL
 import mysql.connector
-from wtforms import Form, StringField, TextAreaField, PasswordField, validators
+from wtforms import Form, StringField, TextAreaField, PasswordField, IntegerField, validators
 from passlib.hash import sha256_crypt
 from functools import wraps
 
 app = Flask(__name__)
-LOG = create_logger(app)
+app.secret_key = 'secret123'
 
 
 @app.route('/')
@@ -23,7 +21,7 @@ def about():
 @app.route('/articles')
 def articles():
     # config MySQL
-    conn = mysql.connector.Connect(host='localhost', user='root', password='password', database='myflaskapp')
+    conn = mysql.connector.Connect(host='us-cdbr-iron-east-05.cleardb.net', user='b0ba7a521bc277', password='7cbee23c', database='heroku_956d12e7b2a4288')
     # Create cursor
     cur = conn.cursor(buffered=True, dictionary=True)
 
@@ -44,7 +42,7 @@ def articles():
 @app.route('/article/<string:id>/')
 def article(id):
     # config MySQL
-    conn = mysql.connector.Connect(host='localhost', user='root', password='password', database='myflaskapp')
+    conn = mysql.connector.Connect(host='us-cdbr-iron-east-05.cleardb.net', user='b0ba7a521bc277', password='7cbee23c', database='heroku_956d12e7b2a4288')
     # Create cursor
     cur = conn.cursor(buffered=True, dictionary=True)
 
@@ -77,7 +75,7 @@ def register():
         password = sha256_crypt.encrypt(str(form.password.data))
 
         # config MySQL
-        conn = mysql.connector.Connect(host='localhost', user='root', password='password', database='myflaskapp')
+        conn = mysql.connector.Connect(host='us-cdbr-iron-east-05.cleardb.net', user='b0ba7a521bc277', password='7cbee23c', database='heroku_956d12e7b2a4288')
         # Create cursor
         curs = conn.cursor()
         curs.execute("INSERT INTO users(name, email, username, password) VALUES(%s, %s, %s, %s)", (name, email, username, password))
@@ -103,7 +101,7 @@ def login():
         password_candidate = request.form['password']
 
         # config MySQL
-        conn = mysql.connector.Connect(host='localhost', user='root', password='password', database='myflaskapp')
+        conn = mysql.connector.Connect(host='us-cdbr-iron-east-05.cleardb.net', user='b0ba7a521bc277', password='7cbee23c', database='heroku_956d12e7b2a4288')
         # Create cursor
         cur = conn.cursor(buffered=True, dictionary=True)
 
@@ -159,22 +157,41 @@ def logout():
 def dashboard():
 
     # config MySQL
-    conn = mysql.connector.Connect(host='localhost', user='root', password='password', database='myflaskapp')
+    conn = mysql.connector.Connect(host='us-cdbr-iron-east-05.cleardb.net', user='b0ba7a521bc277', password='7cbee23c', database='heroku_956d12e7b2a4288')
     # Create cursor
     cur = conn.cursor(buffered=True, dictionary=True)
 
-    # Get user by username
+    # Get Articles
     cur.execute("SELECT * FROM articles")
 
     articles = cur.fetchall()
 
-    if articles is not None:
-        return render_template('dashboard.html', articles=articles)
+    # if articles is not None:
+    #     return render_template('dashboard.html', articles=articles)
+    # else:
+    #     msg = "No Articles Found"
+    #     return render_template('dashboard.html', msg=msg)
+    
+    # cur.close()
+    # conn.close()
+
+    # config MySQL
+    conn2 = mysql.connector.Connect(host='us-cdbr-iron-east-05.cleardb.net', user='b0ba7a521bc277', password='7cbee23c', database='heroku_956d12e7b2a4288')
+    # Create cursor
+    cur2 = conn2.cursor(buffered=True, dictionary=True)
+
+    # Get Players
+    cur2.execute("SELECT * FROM players")
+
+    players = cur2.fetchall()
+
+    if players is not None:
+        return render_template('dashboard.html', articles=articles, players=players)
     else:
-        msg = "No Articles Found"
+        msg = "No Players Found"
         return render_template('dashboard.html', msg=msg)
     
-    cur.close()
+    cur2.close()
 
     return render_template('dashboard.html')
 
@@ -193,7 +210,7 @@ def add_article():
         body = form.body.data
 
         # config MySQL
-        conn = mysql.connector.Connect(host='localhost', user='root', password='password', database='myflaskapp')
+        conn = mysql.connector.Connect(host='us-cdbr-iron-east-05.cleardb.net', user='b0ba7a521bc277', password='7cbee23c', database='heroku_956d12e7b2a4288')
         # Create cursor
         curs = conn.cursor(buffered=True, dictionary=True)
 
@@ -219,7 +236,7 @@ def add_article():
 def edit_article(id):
 
     # config MySQL
-    conn = mysql.connector.Connect(host='localhost', user='root', password='password', database='myflaskapp')
+    conn = mysql.connector.Connect(host='us-cdbr-iron-east-05.cleardb.net', user='b0ba7a521bc277', password='7cbee23c', database='heroku_956d12e7b2a4288')
     # Create cursor
     curs = conn.cursor(buffered=True, dictionary=True)
 
@@ -239,7 +256,7 @@ def edit_article(id):
         body = request.form['body']
 
         # config MySQL
-        conn = mysql.connector.Connect(host='localhost', user='root', password='password', database='myflaskapp')
+        conn = mysql.connector.Connect(host='us-cdbr-iron-east-05.cleardb.net', user='b0ba7a521bc277', password='7cbee23c', database='heroku_956d12e7b2a4288')
         # Create cursor
         curs = conn.cursor(buffered=True, dictionary=True)
 
@@ -265,7 +282,7 @@ def edit_article(id):
 def delete_article(id):
 
     # config MySQL
-    conn = mysql.connector.Connect(host='localhost', user='root', password='password', database='myflaskapp')
+    conn = mysql.connector.Connect(host='us-cdbr-iron-east-05.cleardb.net', user='b0ba7a521bc277', password='7cbee23c', database='heroku_956d12e7b2a4288')
     # Create cursor
     curs = conn.cursor(buffered=True, dictionary=True)
     # Get Articles
@@ -281,6 +298,62 @@ def delete_article(id):
     flash('Article Deleted', 'success')
     return redirect(url_for('dashboard'))
 
+# Player Class
+class PlayerForm(Form):
+    name = StringField('Name', [validators.Length(min=1, max=20)])
+    surname = StringField('Surname', [validators.Length(min=1, max=20)])
+    nationality = StringField('Nationality', [validators.Length(min=1, max=20)])
+    height = IntegerField('Height')
+    weight = IntegerField('Weight')
+
+# Add Player
+@app.route('/add_player', methods=['GET', 'POST'])
+@is_logged_in
+def add_player():
+    form = PlayerForm(request.form)
+    if request.method == 'POST' and form.validate():
+        name = form.name.data
+        surname = form.surname.data
+        nationality = form.nationality.data
+        height = form.height.data
+        weight = form.weight.data
+
+        # config MySQL
+        conn = mysql.connector.Connect(host='us-cdbr-iron-east-05.cleardb.net', user='b0ba7a521bc277', password='7cbee23c', database='heroku_956d12e7b2a4288')
+        # Create cursor
+        curs = conn.cursor(buffered=True, dictionary=True)
+
+        # Get user by username
+        curs.execute("INSERT INTO players(name, surname, nationality, height, weight) VALUES(%s, %s, %s, %s, %s)", (name, surname, nationality, height, weight))
+        
+        # Commit to DB
+        conn.commit()
+
+        # Close connection
+        curs.close()
+        conn.close()
+
+        flash('Player Added', 'success')
+
+        return redirect(url_for('dashboard'))
+
+    return render_template('add_player.html', form=form)
+
+# Download Player
+@app.route('/download_player/<string:id>')
+@is_logged_in
+def download_player(id):
+
+    # config MySQL
+    conn = mysql.connector.Connect(host='us-cdbr-iron-east-05.cleardb.net', user='b0ba7a521bc277', password='7cbee23c', database='heroku_956d12e7b2a4288')
+    # Create cursor
+    curs = conn.cursor(buffered=True, dictionary=True)
+
+    curs.execute("SELECT * FROM players WHERE id = %s", [id])
+
+    result = curs.fetchone()
+    
+    return result
+
 if __name__ == '__main__':
-    app.secret_key = 'secret123'
     app.run(debug=True)
